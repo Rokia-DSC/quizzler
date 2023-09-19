@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(Quizzler());
+void main() => runApp(const Quizzler());
 
 class Quizzler extends StatelessWidget {
   const Quizzler({super.key});
@@ -30,28 +31,38 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  List<Widget> scoreKeeper = [
-    Icon(Icons.check, color: Colors.green),
-    Icon(Icons.close, color: Colors.red),
-    Icon(Icons.close, color: Colors.red),
-    Icon(Icons.close, color: Colors.red),
-    Icon(Icons.close, color: Colors.red),
+  List<Widget> scoreKeeper = [];
+  List<String> questions = [
+    'You can lead a cow down stairs but not up stairs.',
+    'Approximately one quarter of human bones are in the feet.',
+    'A slug\'s blood is green.'
   ];
+  List<bool> answers = [false, true, true];
+  int questionNumber = 0;
+
+  void questionNumberIncrement() {
+    if (questionNumber < questions.length - 1) {
+      questionNumber++;
+    } else {
+      questionNumber = 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const Expanded(
+        Expanded(
           flex: 5,
           child: Padding(
-            padding: EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                questions[questionNumber],
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 25.0,
                   color: Colors.white,
                 ),
@@ -75,11 +86,19 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
+                bool correctAnswer = answers[questionNumber];
+                if (correctAnswer == true) {
+                  if (kDebugMode) {
+                    print('user got it right');
+                  }
+                } else {
+                  if (kDebugMode) {
+                    print('user got it wrong');
+                  }
+                }
                 //The user picked true.
                 setState(() {
-                  scoreKeeper.add(
-                    const Icon(Icons.check, color: Colors.green),
-                  );
+                  questionNumber++;
                 });
               },
             ),
@@ -100,14 +119,25 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
+                bool correctAnswer = answers[questionNumber];
+                if (correctAnswer == false) {
+                  if (kDebugMode) {
+                    print('user got it right');
+                  }
+                } else {
+                  if (kDebugMode) {
+                    print('user got it wrong');
+                  }
+                }
                 //The user picked false.
+                setState(() {
+                  questionNumber++;
+                });
               },
             ),
           ),
         ),
-        Row(
-          children: scoreKeeper,
-        ),
+        Row(children: scoreKeeper),
       ],
     );
   }
