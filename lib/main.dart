@@ -1,12 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(const Quizzler());
 
 class Quizzler extends StatelessWidget {
+  //Inheritance - extends
   const Quizzler({super.key});
 
-  @override
+  @override //Polymorphism - method overriding
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -32,20 +36,42 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   List<Widget> scoreKeeper = [];
-  List<String> questions = [
-    'You can lead a cow down stairs but not up stairs.',
-    'Approximately one quarter of human bones are in the feet.',
-    'A slug\'s blood is green.'
-  ];
-  List<bool> answers = [false, true, true];
-  int questionNumber = 0;
-
-  void questionNumberIncrement() {
-    if (questionNumber < questions.length - 1) {
-      questionNumber++;
-    } else {
-      questionNumber = 0;
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getCorrectAnswer();
+    if (quizBrain.isFinished() == true) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Questions Finished!",
+        desc: "Flutter is more awesome with RFlutter Alert.",
+        buttons: [
+          DialogButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                quizBrain.reset();
+                scoreKeeper = [];
+              });
+            },
+            width: 120,
+            child: const Text(
+              "close",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          )
+        ],
+      ).show();
     }
+    setState(() {
+      if (userPickedAnswer == correctAnswer) {
+        scoreKeeper.add(const Icon(Icons.check, color: Colors.green));
+      } else {
+        scoreKeeper.add(const Icon(Icons.close, color: Colors.red));
+      }
+      //The user picked true.
+
+      quizBrain.nextQuestion();
+    });
   }
 
   @override
@@ -60,7 +86,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                questions[questionNumber],
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 25.0,
@@ -86,20 +112,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                bool correctAnswer = answers[questionNumber];
-                if (correctAnswer == true) {
-                  if (kDebugMode) {
-                    print('user got it right');
-                  }
-                } else {
-                  if (kDebugMode) {
-                    print('user got it wrong');
-                  }
-                }
-                //The user picked true.
-                setState(() {
-                  questionNumber++;
-                });
+                checkAnswer(true);
               },
             ),
           ),
@@ -119,20 +132,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                bool correctAnswer = answers[questionNumber];
-                if (correctAnswer == false) {
-                  if (kDebugMode) {
-                    print('user got it right');
-                  }
-                } else {
-                  if (kDebugMode) {
-                    print('user got it wrong');
-                  }
-                }
-                //The user picked false.
-                setState(() {
-                  questionNumber++;
-                });
+                checkAnswer(false);
               },
             ),
           ),
